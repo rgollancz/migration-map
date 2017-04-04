@@ -22,24 +22,47 @@ d3.json("./data/world-50m.json", function(error, worldMap) {
 
         g.datum(country)
       .append("path")
-        .attr("d", path);
+        .attr("d", path)
+        .attr('fill', 'white')
+        .attr('stroke', 'black');
+
+  const colors = ['yellow', 'red', 'purple', 'blue', 'green', 'gray', 'pink', 'lightblue', 'lightgreen']
 
   d3.csv('./data/flow-of-people.csv', function(error, data) {
 
     for (var i = 0; i < data.length; i++) {
-        var circle = g.append("circle")
-          .attr('r', 10)
+        var line = g.append("line")
+          .attr('stroke-width', 2.5)
 
-        var lat = data[i].coordinates_origin_latitude;
-        var long = data[i].coordinates_origin_longitude;
-        circle.attr("transform", "translate(" + projection([long,lat]) + ")")
-              .attr('fill', 'yellow')
-        var circle = g.append("circle")
-            .attr('r', 10)
-        var lat = data[i].coordinates_destination_latitude;
-        var long = data[i].coordinates_destination_longitude;
-        circle.attr("transform", "translate(" + projection([long,lat]) + ")")
-              .attr('fill', 'red')
+        var originLatitude = data[i].coordinates_origin_latitude;
+        var originLongitude = data[i].coordinates_origin_longitude;
+
+        var destinationLatitude = data[i].coordinates_destination_latitude;
+        var destinationLongitude = data[i].coordinates_destination_longitude;
+
+        var projectedOrigin = projection([originLongitude, originLatitude]);
+        var projectedDestination = projection([destinationLongitude, destinationLatitude]);
+        var color = colors[i];
+
+        var defs = g.append('defs')
+            .append('marker')
+                .attr('id', 'arrow')
+                  .attr('markerWidth', 10)
+                  .attr('markerHeight', 10)
+                  .attr('refX', 0)
+                  .attr('refY', 3)
+                  .attr('orient', 'auto')
+                  .attr('markerUnits', 'strokeWidth')
+                      .append('path')
+                          .attr('d', 'M0,0 L0,5 L9,3 z')
+                          .attr('fill', color);
+
+        line.attr('x1', projectedOrigin[0])
+            .attr('y1', projectedOrigin[1])
+            .attr('x2', projectedDestination[0])
+            .attr('y2', projectedDestination[1])
+            .attr('stroke', color)
+            .attr('marker-end', 'url(#arrow)');
     }
   })
 
