@@ -1,0 +1,9 @@
+#text {
+  margin: 20px;
+  height: 400px;
+  overflow: scroll;
+}
+
+#world-map {
+  background-color: white;
+}
