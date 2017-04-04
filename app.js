@@ -1,9 +1,9 @@
 var width = window.innerWidth,
-    height = window.innerHeight;
+    height = 500;
 
 var projection = d3.geoMercator()
-    .translate([width / 2, height / 2 - 100])
-    .scale((width - 1.3) / 2 / Math.PI);
+    .translate([width / 2, height / 2])
+    .scale((width - 1) / 2 / Math.PI);
 
 var path = d3.geoPath()
         .projection(projection);
@@ -29,6 +29,9 @@ d3.json("./data/world-50m.json", function(error, worldMap) {
   const colors = ['yellow', 'red', 'purple', 'blue', 'green', 'gray', 'pink', 'lightblue', 'lightgreen']
 
   d3.csv('./data/flow-of-people.csv', function(error, data) {
+
+    var highestSection = 0
+    var lineArray = []
 
     for (var i = 0; i < data.length; i++) {
         var line = g.append("line")
@@ -62,20 +65,32 @@ d3.json("./data/world-50m.json", function(error, worldMap) {
                           .attr('fill', color)
                           .attr('opacity', 0.8);
 
-
         line.attr('x1', projectedOrigin[0])
             .attr('y1', projectedOrigin[1])
             .attr('x2', projectedOrigin[0])
             .attr('y2', projectedOrigin[1])
             .attr('stroke', color)
             .attr('marker-end', 'url(#arrow)')
-            .attr('opacity', 0.8).transition()
-                .duration(500)
-                .ease(d3.easeCubicOut)
-                .delay(500 + (200 * i))
-                .attr('x2', projectedDestination[0])
-                .attr('y2', projectedDestination[1])
+            .attr('opacity', 0.8)
+
+        lineArray.push(line);
     }
+
+    var div = document.querySelector('#text');
+    div.addEventListener('scroll', function(e) {
+      var scrollPoint = div.scrollTop;
+      var scrollRatio = scrollPoint / 732;
+      var currentSection = Math.floor(scrollRatio * 9);
+      if (currentSection > highestSection) {
+          highestSection = currentSection;
+          lineArray[highestSection - 1]
+            .transition()
+            .duration(500)
+            .ease(d3.easeCubicOut)
+            .attr('x2', projectedDestination[0])
+            .attr('y2', projectedDestination[1]);
+      }
+    })
   })
 
 });
