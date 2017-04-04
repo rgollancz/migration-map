@@ -18,8 +18,29 @@ d3.json("./data/world-50m.json", function(error, worldMap) {
     var country = topojson.merge(worldMap, worldMap.objects.countries.geometries);
       // this is identifying where the array of objects which contain coordinates are in the topojson
 
-    svgWorldMap.append("g")
-        .datum(country)
+    var g = svgWorldMap.append("g")
+
+        g.datum(country)
       .append("path")
         .attr("d", path);
+
+  d3.csv('./data/flow-of-people.csv', function(error, data) {
+
+    for (var i = 0; i < data.length; i++) {
+        var circle = g.append("circle")
+          .attr('r', 10)
+
+        var lat = data[i].coordinates_origin_latitude;
+        var long = data[i].coordinates_origin_longitude;
+        circle.attr("transform", "translate(" + projection([long,lat]) + ")")
+              .attr('fill', 'yellow')
+        var circle = g.append("circle")
+            .attr('r', 10)
+        var lat = data[i].coordinates_destination_latitude;
+        var long = data[i].coordinates_destination_longitude;
+        circle.attr("transform", "translate(" + projection([long,lat]) + ")")
+              .attr('fill', 'red')
+    }
+  })
+
 });
